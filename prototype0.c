@@ -2,7 +2,7 @@
  * factor out reformat
  * factor out encyphering
  * factor out rotating
- * need findchar?
+ * make initial rotor settings configurable
  */
 
 #include <stdio.h>
@@ -55,34 +55,72 @@ int main(int argc, char* argv[]){
     char rotor3[] =  "EKMFLGDQVZNTOWYHXUSPAIBRCJ";
     char reflec[] =  "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 
+    int len = strlen(palpha);
+
     // rotor offsets
     int r1 = 0;
     int r2 = 0;
     int r3 = 0;
 
+    // initial settings
+    if (r1 != 0){
+        for (int i = 0; i < r1; i++){
+            char tmp = rotor1[0];
+            for (int j = 0; j < len; j++){
+                rotor1[j] = rotor1[j + 1];
+            }
+            rotor1[len - 1] = tmp;
+        }
+    }
+    if (r2 != 0){
+        for (int i = 0; i < r2; i++){
+            char tmp = rotor2[0];
+            for (int j = 0; j < len; j++){
+                rotor2[j] = rotor2[j + 1];
+            }
+            rotor2[len - 1] = tmp;
+        }
+    }
+    if (r3 != 0){
+        for (int i = 0; i < r3; i++){
+            char tmp = rotor3[0];
+            for (int j = 0; j < len; j++){
+                rotor3[j] = rotor3[j + 1];
+            }
+            rotor3[len - 1] = tmp;
+        }
+    }
+
     // encipher chars
     for (int x = 0; x < j; x++){
 
-        // rotate
-        int len = strlen(rotor1);
+        // rotate r1
         char tmp = rotor1[0];
         for (int i = 0; i < (len - 1); i++){
             rotor1[i] = rotor1[i + 1]; 
         }
         rotor1[len - 1] = tmp;
-
         r1++;
 
-        // check rotors 2 & 3
         if (r1 == 26){
+            char tmp = rotor2[0];
+            for (int i = 0; i < (len - 1); i++){
+                rotor2[i] = rotor2[i + 1]; 
+            }
+            rotor2[len - 1] = tmp;
             r2++;
             r1 = 0;
         }
         if (r2 == 26){
+            char tmp = rotor3[0];
+            for (int i = 0; i < (len - 1); i++){
+                rotor3[i] = rotor3[i + 1]; 
+            }
+            rotor3[len - 1] = tmp;
             r3++;
-            r2 == 0;
+            r2 = 0;
         }
-        r3 = (r3 % 26);
+        r3 = mod26(r3);
 
         // pass through rotors
         int i = input2[x] - 'A';
