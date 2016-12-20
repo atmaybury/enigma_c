@@ -1,7 +1,6 @@
 /* TODO:
  * factor out reformat
  * factor out encyphering
- * factor out rotating
  * make initial rotor settings configurable
  */
 
@@ -12,6 +11,7 @@
 // prototypes
 int findchar(char* a, char b);
 int mod26(int n);
+void arrayRotate(char* input, int len);
 
 int main(int argc, char* argv[]){
 
@@ -65,29 +65,17 @@ int main(int argc, char* argv[]){
     // initial settings
     if (r1 != 0){
         for (int i = 0; i < r1; i++){
-            char tmp = rotor1[0];
-            for (int j = 0; j < len; j++){
-                rotor1[j] = rotor1[j + 1];
-            }
-            rotor1[len - 1] = tmp;
+            arrayRotate(rotor1, len);
         }
     }
     if (r2 != 0){
         for (int i = 0; i < r2; i++){
-            char tmp = rotor2[0];
-            for (int j = 0; j < len; j++){
-                rotor2[j] = rotor2[j + 1];
-            }
-            rotor2[len - 1] = tmp;
+            arrayRotate(rotor1, len);
         }
     }
     if (r3 != 0){
         for (int i = 0; i < r3; i++){
-            char tmp = rotor3[0];
-            for (int j = 0; j < len; j++){
-                rotor3[j] = rotor3[j + 1];
-            }
-            rotor3[len - 1] = tmp;
+            arrayRotate(rotor3, len);
         }
     }
 
@@ -95,28 +83,16 @@ int main(int argc, char* argv[]){
     for (int x = 0; x < j; x++){
 
         // rotate r1
-        char tmp = rotor1[0];
-        for (int i = 0; i < (len - 1); i++){
-            rotor1[i] = rotor1[i + 1]; 
-        }
-        rotor1[len - 1] = tmp;
+        arrayRotate(rotor1, len);
         r1++;
 
         if (r1 == 26){
-            char tmp = rotor2[0];
-            for (int i = 0; i < (len - 1); i++){
-                rotor2[i] = rotor2[i + 1]; 
-            }
-            rotor2[len - 1] = tmp;
+            arrayRotate(rotor2, len);
             r2++;
             r1 = 0;
         }
         if (r2 == 26){
-            char tmp = rotor3[0];
-            for (int i = 0; i < (len - 1); i++){
-                rotor3[i] = rotor3[i + 1]; 
-            }
-            rotor3[len - 1] = tmp;
+            arrayRotate(rotor3, len);
             r3++;
             r2 = 0;
         }
@@ -157,4 +133,12 @@ int findchar(char* a, char b){
 
 int mod26(int n){
     return (n+26)%26;
+}
+
+void arrayRotate(char* input, int len){
+    char tmp = input[0];
+    for (int i = 0; i < (len - 1); i++){
+        input[i] = input[i + 1];
+    }
+    input[len - 1] = tmp;
 }
