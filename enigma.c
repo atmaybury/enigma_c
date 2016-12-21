@@ -1,6 +1,5 @@
 /* TODO:
  * factor out reformat
- * factor out encyphering
  * make initial rotor settings configurable
  */
 
@@ -12,6 +11,8 @@
 int findchar(char* a, char b);
 int mod26(int n);
 void arrayRotate(char* input, int len);
+char rotorPass(char* rotor, char n);
+char returnPass(char*rotor, char n);
 
 int main(int argc, char* argv[]){
 
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]){
     }
 
     // encipher chars
-    for (int x = 0; x < j; x++){
+    for (int i = 0; i < j; i++){
 
         // rotate r1
         arrayRotate(rotor1, len);
@@ -99,31 +100,22 @@ int main(int argc, char* argv[]){
         r3 = mod26(r3);
 
         // pass through rotors
-        int i = input2[x] - 'A';
-        char a = rotor1[i];
-
-        int j = a - 'A';
-        char b = rotor2[j];
-
-        int k = b - 'A';
-        char c = rotor3[k];
-
-        int l = c - 'A';
-        char d = reflec[l];
-
-        int m = findchar(rotor3, d);
-        char e = palpha[m];
-
-        int n = findchar(rotor2, e);
-        char f = palpha[n];
-        
-        int o = findchar(rotor1, f);
-        input2[x] = palpha[o];
+        char a = rotorPass(rotor1, input2[i]);
+        char b = rotorPass(rotor2, a);
+        char c = rotorPass(rotor3, b);
+        char d = rotorPass(reflec, c);
+        char e = palpha[findchar(rotor3, d)];
+        char f = palpha[findchar(rotor2, e)];
+        input2[i] = palpha[findchar(rotor1, f)];
    }
 
     // print output string
     printf("%s\n", input2);
 }
+
+/*
+ * FUNCTIONS
+ */
 
 int findchar(char* a, char b){
     char *e = strchr(a, b);
@@ -141,4 +133,14 @@ void arrayRotate(char* input, int len){
         input[i] = input[i + 1];
     }
     input[len - 1] = tmp;
+}
+
+char rotorPass(char* rotor, char n){
+    int i = n - 'A';
+    return rotor[i];
+}
+
+char returnPass(char* rotor, char n){
+    int i = findchar(rotor, n);
+    return rotor[i];
 }
