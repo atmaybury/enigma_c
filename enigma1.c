@@ -1,6 +1,18 @@
 /* TODO:
- * factor out reformat
  * make initial rotor settings configurable
+ */
+
+/* PSEUDO
+ *
+ * set initial rotor positions
+ * make buffer
+ * make dynamic array
+ * declare rotor strings
+ * read infile in chars - realloc buffer if needed
+ *  skip anything nonalpha
+ *  make everything toupper
+ *  encipher char
+ *  print char to stdout
  */
 
 #include <stdio.h>
@@ -27,28 +39,7 @@ int main(int argc, char* argv[]){
         printf("ERROR: No valid text file.\n");
         return 1;
     }
-    fseek(infile,0,SEEK_END);
-    int size = ftell(infile);
-    fseek(infile,0,SEEK_SET);
-    char input[size];
-    fgets(input,size,infile);
-    fclose(infile);
-
-    // reformat text
-    char input2[size];
-    int j = 0;
-    for (int i = 0; i < size; i++){
-        if (input[i] >= 'A' && input[i] <= 'Z'){
-            input2[j] = input[i];
-            j++;
-        }
-        if (input[i] >= 'a' && input[i] <= 'z'){
-            input2[j] = toupper(input[i]);
-            j++;
-        }
-    }
-    input2[j] = '\0';
-
+    
     // rotor strings
     char palpha[] =  "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     char rotor1[] =  "BDFHJLCPRTXVZNYEIWGAKMUSQO";
@@ -59,9 +50,20 @@ int main(int argc, char* argv[]){
     int len = strlen(palpha);
 
     // rotor offsets
-    int r1 = 0;
-    int r2 = 0;
-    int r3 = 0;
+    printf("Rotor 1 position [enter int]:");
+    int r1;
+    scanf("%d", &r1);
+    r1 = mod26(r1);
+
+    printf("Rotor 2 position [enter int]:");
+    int r2;
+    scanf("%d", &r2);
+    r2 = mod26(r2);
+
+    printf("Rotor 3 position [enter int]:");
+    int r3;
+    scanf("%d", &r3);
+    r3 = mod26(r3);
 
     // initial settings
     if (r1 != 0){
@@ -80,37 +82,42 @@ int main(int argc, char* argv[]){
         }
     }
 
-    // encipher chars
-    for (int i = 0; i < j; i++){
+    int n;
+    while ((n = fgetc(infile)) != EOF){
+        if (isalpha(n)){
+            if (islower(n)){
+                n = toupper(n);
+            }
+            // rotate r1
+            arrayRotate(rotor1, len);
+            r1++;
 
-        // rotate r1
-        arrayRotate(rotor1, len);
-        r1++;
+            if (r1 == 26){
+                arrayRotate(rotor2, len);
+                r2++;
+                r1 = 0;
+            }
+            if (r2 == 26){
+                arrayRotate(rotor3, len);
+                r3++;
+                r2 = 0;
+            }
+            r3 = mod26(r3);
 
-        if (r1 == 26){
-            arrayRotate(rotor2, len);
-            r2++;
-            r1 = 0;
+            // pass through rotors
+            char a = rotorPass(rotor1, n);
+            char b = rotorPass(rotor2, a);
+            char c = rotorPass(rotor3, b);
+            char d = rotorPass(reflec, c);
+            char e = palpha[findchar(rotor3, d)];
+            char f = palpha[findchar(rotor2, e)];
+            char g = palpha[findchar(rotor1, f)];
+
+            // print enciphered char
+            printf("%c", g);
         }
-        if (r2 == 26){
-            arrayRotate(rotor3, len);
-            r3++;
-            r2 = 0;
-        }
-        r3 = mod26(r3);
-
-        // pass through rotors
-        char a = rotorPass(rotor1, input2[i]);
-        char b = rotorPass(rotor2, a);
-        char c = rotorPass(rotor3, b);
-        char d = rotorPass(reflec, c);
-        char e = palpha[findchar(rotor3, d)];
-        char f = palpha[findchar(rotor2, e)];
-        input2[i] = palpha[findchar(rotor1, f)];
-   }
-
-    // print output string
-    printf("%s\n", input2);
+    }
+    printf("\n");
 }
 
 /*
