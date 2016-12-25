@@ -1,18 +1,6 @@
-/* TODO:
- * make initial rotor settings configurable
- */
-
-/* PSEUDO
- *
- * set initial rotor positions
- * make buffer
- * make dynamic array
- * declare rotor strings
- * read infile in chars - realloc buffer if needed
- *  skip anything nonalpha
- *  make everything toupper
- *  encipher char
- *  print char to stdout
+/* TODO
+ * Implement plugboard
+ * benchmark
  */
 
 #include <stdio.h>
@@ -37,6 +25,12 @@ int main(int argc, char* argv[]){
     FILE * infile = fopen(argv[1], "r");
     if (infile == NULL){
         printf("ERROR: No valid text file.\n");
+        return 1;
+    }
+
+    FILE * outfile = fopen("ciphertext.txt", "w");
+    if (outfile == NULL){
+        printf("ERROR: Couldn't create output file.\n");
         return 1;
     }
     
@@ -114,10 +108,11 @@ int main(int argc, char* argv[]){
             char g = palpha[findchar(rotor1, f)];
 
             // print enciphered char
-            printf("%c", g);
+            fputc(g, outfile);
         }
     }
-    printf("\n");
+    fputc('\n', outfile);
+    fclose(infile);
 }
 
 /*
